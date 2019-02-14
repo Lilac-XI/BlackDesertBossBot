@@ -3,6 +3,7 @@ require 'date'
 require 'time'
 require 'csv'
 require 'dotenv'
+
 Dotenv.load
 
 bot = Discordrb::Commands::CommandBot.new(
