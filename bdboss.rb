@@ -9,7 +9,7 @@ Dotenv.load
 bot = Discordrb::Commands::CommandBot.new(
 token: ENV["TOKEN"],
 client_id: ENV["CLIENT_ID"],
-prefix:'bb ',
+prefix:'b ',
 )
 
 $boss_schedule = CSV.table("#{Dir.pwd}/schedules/boss_schedule.csv",headers: true)
@@ -17,11 +17,17 @@ $time_schedule = CSV.table("#{Dir.pwd}/schedules/time_schedule.csv",headers: tru
 $voice_state = false
 $timer_state = false
 $loop_breaker = false
-
+$check_schedule = [[90,660,960,1140,1380],[90,960,1140,1380],[90,660,960,1140]]
+$youbi = 0
 bot.command :next do |event|
 	t = Time.now
 	next_boss = next_boss_data(t.hour,t.min)
-	event.send_message("次のボスは#{next_boss[:time]}に#{next_boss[:name1]} #{next_boss[:name2]}です")
+	message = "次のボスは#{next_boss[:time]}に#{next_boss[:name1]}"
+	if next_boss[:name2] then
+	 	message = message << " #{next_boss[:name2]}"
+	end
+	message = message << "です。"
+	event.send_message(message)
  	
 end
 
@@ -47,18 +53,11 @@ bot.command :set do |event,min|
 	min = Integer(min)
 	$loop_breaker = false
 	event.send_message("まもなくタイマーが設定されます")
-	if ($timer_state == false && min % 5 == 0) then
+	if $timer_state == false && min % 5 == 0
 		$timer_state = true
-		while $timer_state
-			t = Time.now
-			m = t.min
-			if m % 5 == 0
-				break
-			end
-			sleep 60
-		end
+		adjust
 		event.send_message("タイマーがセットされました。ボス登場の#{min}分前に通知されます。")
-		boss_schedule = [90,660,960,1140,1380]
+		
 		while $timer_state
 			if $loop_breaker then
 				$timer_state = false
@@ -66,8 +65,9 @@ bot.command :set do |event,min|
 			end
 			t = Time.now
 			now = (t.hour * 60) + t.min
-			boss_schedule.each do |i|
-				if i - now <= min
+			x = schedule_selector
+			$check_schedule[x].each do |i|
+				if i - now <= min && i - now >= 0
 					next_boss = next_boss_data(t.hour,t.min)
 					event.send_message("#{next_boss[:time]}に#{next_boss[:name1]} #{next_boss[:name2]}が現れます！")
 					if $voice_state then
@@ -85,7 +85,7 @@ bot.command :set do |event,min|
 		end
 		event.send_message("タイマーは終了しました")
 	elsif $timer_state == false
-		event.send_message("設定値 #{} タイマーは５で割り切れる数でセットしてください")
+		event.send_message("設定値 #{min} タイマーは５で割り切れる数でセットしてください")
 	else
 		event.send_message("タイマーは既に設定されています")
 	end
@@ -96,7 +96,7 @@ bot.command :off do |event|
 		$loop_breaker = true
 		next "しばらくするとタイマーがオフになります。"
 	elsif $timer_state == true
-		event.send_message("タイマがオフになるまでしばらくおl待ちください。")
+		event.send_message("タイマーがオフになるまでしばらくお待ちください。")
 	else
 		event.send_message("タイマーはセットされていません")
 	end
@@ -106,20 +106,14 @@ end
 def next_boss_data(hour,min)
 	min = one2two(min)
 	y = Date.today.wday
-	now = Integer("#{hour}#{min}")
-	puts y
-	puts now
+	now = ("#{hour}#{min}").to_i
 	time = $time_schedule.find{|row| row[:wday] == y && row[:preview_time] < now}
 	next_time = time[:next_time]
-	puts next_time
-	if next_time == "01:30"
-		if y == 6
-			y = 0
-		else
-			y = y + 1
-		end
+	if next_time == "25:30" && now <= 130
+		y = date_line(y)
 	end
 	next_boss = $boss_schedule.find{|row| row[:wday] == y && row[:time] == next_time}
+
 	return next_boss
 end
 
@@ -128,6 +122,43 @@ def one2two(min)
 	if min.size == 1
 		min = "0#{min}"
 	end
+	
 	return min
 end
+
+def date_line(y)
+	if y == 0
+		y = 6
+	else
+		y = y - 1
+	end
+
+	return y
+end
+
+def schedule_selector
+	y = Date.today.wday
+	if y == 3
+		x = 1
+	elsif y == 6
+		x = 2
+	else
+		x = 0
+	end
+
+	return x
+end
+
+def adjust
+	while $loop_breaker == false
+		t = Time.now
+		m = t.min
+		if m % 5 == 0
+			break
+		end
+		sleep 59
+	end
+end
+
+
 bot.run
