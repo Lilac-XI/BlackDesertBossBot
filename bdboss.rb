@@ -21,11 +21,7 @@ $loop_breaker = false
 bot.command :next do |event|
 	t = Time.now
 	next_boss = next_boss_data(t.hour,t.min)
-	if next_boss[:name1] == nil
-		event.send_message("Nil")
-	else
-		event.send_message("次のボスは#{next_boss[:time]}に#{next_boss[:name1]} #{next_boss[:name2]}です")
-	end
+	event.send_message("次のボスは#{next_boss[:time]}に#{next_boss[:name1]} #{next_boss[:name2]}です")
  	
 end
 
@@ -108,10 +104,14 @@ bot.command :off do |event|
 end
 
 def next_boss_data(hour,min)
+	min = one2two(min)
 	y = Date.today.wday
 	now = Integer("#{hour}#{min}")
+	puts y
+	puts now
 	time = $time_schedule.find{|row| row[:wday] == y && row[:preview_time] < now}
 	next_time = time[:next_time]
+	puts next_time
 	if next_time == "01:30"
 		if y == 6
 			y = 0
@@ -121,5 +121,13 @@ def next_boss_data(hour,min)
 	end
 	next_boss = $boss_schedule.find{|row| row[:wday] == y && row[:time] == next_time}
 	return next_boss
+end
+
+def one2two(min)
+	min = "#{min}"
+	if min.size == 1
+		min = "0#{min}"
+	end
+	return min
 end
 bot.run
