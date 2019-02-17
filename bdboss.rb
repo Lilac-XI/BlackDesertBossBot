@@ -17,7 +17,7 @@ $time_schedule = CSV.table("#{Dir.pwd}/schedules/time_schedule.csv",headers: tru
 $voice_state = false
 $timer_state = false
 $loop_breaker = false
-$check_schedule = [[90,660,960,1140,1380],[90,960,1140,1380],[90,660,960,1140]]
+$check_schedule = [[90,660,960,1140,1380],[90,960,1140,1380],[90,660,960,1140],[90,660,960,1140,1350,1380]]
 $youbi = 0
 bot.command :next do |event|
 	t = Time.now
@@ -142,6 +142,8 @@ def schedule_selector
 		x = 1
 	elsif y == 6
 		x = 2
+	elsif y == 0
+		x = 3
 	else
 		x = 0
 	end
