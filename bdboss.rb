@@ -110,7 +110,7 @@ bot.command :test do |event|
 	if $voice_state then
 		event.voice.play_file("#{Dir.pwd}/voice/次のボスは.wav")
 	else
-		event.send_message("Can not disconnect")
+		event.send_message("Do not Connected")
 	end
 	
 end
