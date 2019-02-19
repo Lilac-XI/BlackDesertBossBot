@@ -49,20 +49,17 @@ bot.command :kick do |event|
 	
 end
 
-bot.command :set do |event,min|
+bot.command :set do |event,min,repeat|
+	repeat ||= min
 	min = Integer(min)
 	$loop_breaker = false
-	event.send_message("まもなくタイマーが設定されます")
 	if $timer_state == false && min % 5 == 0
+		event.send_message("まもなくタイマーが設定されます")
 		$timer_state = true
 		adjust
 		event.send_message("タイマーがセットされました。ボス登場の#{min}分前に通知されます。")
 		
 		while $timer_state
-			if $loop_breaker then
-				$timer_state = false
-				break
-			end
 			t = Time.now
 			now = (t.hour * 60) + t.min
 			x = schedule_selector
@@ -78,10 +75,14 @@ bot.command :set do |event,min|
 						end
 						event.voice.play_file("#{Dir.pwd}/voice/です.wav")
 					end
-					sleep min * 60
+					sleep repeat * 60
 				end
 			end
 			sleep 299
+			if $loop_breaker == true
+				$timer_state = false
+				break
+			end
 		end
 		event.send_message("タイマーは終了しました")
 	elsif $timer_state == false
