@@ -79,7 +79,8 @@ bot.command :set do |event,min,repeat|
 				end
 			end
 			sleep 299
-			if $loop_breaker == true
+
+			if $loop_breaker then
 				$timer_state = false
 				break
 			end
