@@ -1,0 +1,3 @@
+libopus-dev -y
+libsodium-dev -y
+ffmpeg -y
