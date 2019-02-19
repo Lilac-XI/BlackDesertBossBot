@@ -35,7 +35,7 @@ bot.command :join do |event|
 	$voice_state = true
 	channel = event.user.voice_channel
 	bot.voice_connect(channel)
-	next "Connected to voice channel: #{channel.name}"
+	event.send_message("Connected to voice channel: #{channel.name}")
 end
 
 bot.command :kick do |event|
@@ -50,8 +50,9 @@ bot.command :kick do |event|
 end
 
 bot.command :set do |event,min,repeat|
-	repeat ||= min
 	min = Integer(min)
+	min ||= 15
+	repeat ||= min
 	$loop_breaker = false
 	if $timer_state == false && min % 5 == 0
 		event.send_message("まもなくタイマーが設定されます")
@@ -101,6 +102,15 @@ bot.command :off do |event|
 		event.send_message("タイマーがオフになるまでしばらくお待ちください。")
 	else
 		event.send_message("タイマーはセットされていません")
+	end
+	
+end
+
+bot.command :test do |event|
+	if $voice_state then
+		event.voice.play_file("#{Dir.pwd}/voice/次のボスは.wav")
+	else
+		event.send_message("Can not disconnect")
 	end
 	
 end
