@@ -12,13 +12,13 @@ client_id: ENV["CLIENT_ID"],
 prefix:'b ',
 )
 
-$boss_schedule = CSV.table("#{Dir.pwd}/schedules/boss_schedule.csv",headers: true)
-$time_schedule = CSV.table("#{Dir.pwd}/schedules/time_schedule.csv",headers: true)
+$boss_schedule = CSV.table("#{Dir.pwd}/schedules/boss_schedule.csv",headers: true,encoding: "UTF-8")
+$time_schedule = CSV.table("#{Dir.pwd}/schedules/time_schedule.csv",headers: true,encoding: "UTF-8")
 $voice_state = false
 $timer_state = false
 $loop_breaker = false
 $check_schedule = [[90,660,960,1140,1380],[90,960,1140,1380],[90,660,960,1140],[90,660,960,1140,1350,1380]]
-$youbi = 0
+$adjust_state = true
 bot.command :next do |event|
 	t = Time.now
 	next_boss = next_boss_data(t.hour,t.min)
@@ -76,7 +76,11 @@ bot.command :set do |event,min,repeat|
 						end
 						event.voice.play_file("#{Dir.pwd}/voice/です.wav")
 					end
+					$adjust_state = true
 					sleep repeat * 60
+				elsif i-now <= 60 && i - now > 30  && $adjust_state == true
+					adjust
+					$adjust_state = false
 				end
 			end
 			sleep 299
