@@ -34,8 +34,13 @@ end
 bot.command :join do |event|
 	$voice_state = true
 	channel = event.user.voice_channel
-	bot.voice_connect(channel)
-	event.send_message("Connected to voice channel: #{channel.name}")
+	if channel == nil
+		event.send_message("ボイスチャンネルに接続できません。接続するには[b join]コマンドを入力するユーザーがボイスチャンネルに参加している必要があります。")
+	else
+		bot.voice_connect(channel)
+		event.send_message("Connected to voice channel: #{channel.name}")
+	end
+	
 end
 
 bot.command :kick do |event|
