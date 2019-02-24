@@ -38,7 +38,7 @@ bot.command :join do |event|
 		event.send_message("ボイスチャンネルに接続できません。接続するには[b join]コマンドを入力するユーザーがボイスチャンネルに参加している必要があります。")
 	else
 		bot.voice_connect(channel)
-		event.send_message("Connected to voice channel: #{channel.name}")
+		event.send_message("#{channel.name} に参加しました。")
 	end
 	
 end
@@ -55,8 +55,8 @@ bot.command :kick do |event|
 end
 
 bot.command :set do |event,min,repeat|
-	min = Integer(min)
 	min ||= 15
+	min = Integer(min)
 	repeat ||= min
 	$loop_breaker = false
 	if $timer_state == false && min % 5 == 0
