@@ -126,8 +126,15 @@ end
 
 bot.command :today do |event|
 	y = Date.today.wday
-	today_schedule = boss_schedule[:wday].select {|s| s == y}
-	puts today_schedule
+	today_schedule = $boss_schedule.select {|s| s[:wday] == y}
+	event.send_message("本日のボスのスケジュールは")
+	sleep 1
+	today_schedule.each do |today|
+		event.send_message("#{today[:time]} : #{today[:name1]} #{today[:name2]}")
+		sleep 1
+	end
+	sleep 1
+	event.send_message("です。")
 end
 
 def next_boss_data(hour,min)
