@@ -119,9 +119,15 @@ bot.command :test do |event|
 	if $voice_state then
 		event.voice.play_file("#{Dir.pwd}/voice/次のボスは.wav")
 	else
-		event.send_message("Do not Connected")
+		event.send_message("TEST")
 	end
 	
+end
+
+bot.command :today do |event|
+	y = Date.today.wday
+	today_schedule = boss_schedule[:wday].select {|s| s == y}
+	puts today_schedule
 end
 
 def next_boss_data(hour,min)
