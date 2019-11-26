@@ -131,7 +131,7 @@ bot.command :today do |event|
 	sleep 1
 	today_schedule.each do |today|
 		event.send_message("#{today[:time]} : #{today[:name1]} #{today[:name2]}")
-		sleep 1
+		sleep 1.5
 	end
 	sleep 1
 	event.send_message("です。")
