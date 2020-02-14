@@ -19,6 +19,7 @@ $timer_state = false
 $loop_breaker = false
 $check_schedule = [[90,660,960,1140,1380],[90,960,1140,1380],[90,660,960,1140],[90,660,960,1140,1350,1380]]
 $adjust_state = true
+
 bot.command :next do |event|
 	t = Time.now
 	next_boss = next_boss_data(t.hour,t.min)
@@ -127,14 +128,13 @@ end
 bot.command :today do |event|
 	y = Date.today.wday
 	today_schedule = $boss_schedule.select {|s| s[:wday] == y}
-	event.send_message("本日のボスのスケジュールは")
-	sleep 1
+	message = "本日のボスのスケジュールは"
 	today_schedule.each do |today|
-		event.send_message("#{today[:time]} : #{today[:name1]} #{today[:name2]}")
-		sleep 1.5
+		message = message + "\n"+"#{today[:time]} : #{today[:name1]} #{today[:name2]}"
+
 	end
-	sleep 1
-	event.send_message("です。")
+	message = message + "\nです。"
+	event.send_message(message)
 end
 
 def next_boss_data(hour,min)
