@@ -14,11 +14,11 @@ prefix:'b ',
 
 $boss_schedule = CSV.table("#{Dir.pwd}/schedules/boss_schedule.csv",headers: true,encoding: "UTF-8")
 $time_schedule = CSV.table("#{Dir.pwd}/schedules/time_schedule.csv",headers: true,encoding: "UTF-8")
-$voice_state = false
 $timer_state = false
 $loop_breaker = false
 $check_schedule = [[90,660,960,1140,1380],[90,960,1140,1380],[90,660,960,1140],[90,660,960,1140,1350,1380]]
 $adjust_state = true
+#$voice_state = false
 
 bot.command :next do |event|
 	t = Time.now
@@ -30,29 +30,6 @@ bot.command :next do |event|
 	message = message << "です。"
 	event.send_message(message)
  	
-end
-
-bot.command :join do |event|
-	$voice_state = true
-	channel = event.user.voice_channel
-	if channel == nil
-		event.send_message("ボイスチャンネルに接続できません。接続するには[b join]コマンドを入力するユーザーがボイスチャンネルに参加している必要があります。")
-	else
-		bot.voice_connect(channel)
-		event.send_message("#{channel.name} に参加しました。")
-	end
-	
-end
-
-bot.command :kick do |event|
-	if $voice_state then
-		$voice_state = false
-		bot.voice_destroy(event.server.id)
-		next "Good Bye!"
-	else
-		event.send_message("Can not disconnect")
-	end
-	
 end
 
 bot.command :set do |event,min,repeat|
@@ -74,14 +51,6 @@ bot.command :set do |event,min,repeat|
 				if i - now <= min && i - now >= 0
 					next_boss = next_boss_data(t.hour,t.min)
 					event.send_message("#{next_boss[:time]}に#{next_boss[:name1]} #{next_boss[:name2]}が現れます！")
-					if $voice_state then
-						event.voice.play_file("#{Dir.pwd}/voice/次のボスは.wav")
-						event.voice.play_file("#{Dir.pwd}/voice/#{next_boss[:name1]}.wav")
-						if next_boss[:name2] then
-							event.voice.play_file("#{Dir.pwd}/voice/#{next_boss[:name2]}.wav")
-						end
-						event.voice.play_file("#{Dir.pwd}/voice/です.wav")
-					end
 					$adjust_state = true
 					sleep repeat * 60
 				elsif i-now <= 60 && i - now > 30  && $adjust_state == true
@@ -116,6 +85,44 @@ bot.command :off do |event|
 	
 end
 
+
+
+bot.command :today do |event|
+	y = Date.today.wday
+	today_schedule = $boss_schedule.select {|s| s[:wday] == y}
+	message = "本日のボスのスケジュールは"
+	today_schedule.each do |today|
+		message = message + "\n"+"#{today[:time]} : #{today[:name1]} #{today[:name2]}"
+	end
+	message = message + "\nです。"
+	event.send_message(message)
+end
+
+
+=begin
+bot.command :join do |event|
+	$voice_state = true
+	channel = event.user.voice_channel
+	if channel == nil
+		event.send_message("ボイスチャンネルに接続できません。接続するには[b join]コマンドを入力するユーザーがボイスチャンネルに参加している必要があります。")
+	else
+		bot.voice_connect(channel)
+		event.send_message("#{channel.name} に参加しました。")
+	end
+	
+end
+
+bot.command :kick do |event|
+	if $voice_state then
+		$voice_state = false
+		bot.voice_destroy(event.server.id)
+		next "Good Bye!"
+	else
+		event.send_message("Can not disconnect")
+	end
+	
+end
+
 bot.command :test do |event|
 	if $voice_state then
 		event.voice.play_file("#{Dir.pwd}/voice/次のボスは.wav")
@@ -125,18 +132,19 @@ bot.command :test do |event|
 	
 end
 
-bot.command :today do |event|
-	y = Date.today.wday
-	today_schedule = $boss_schedule.select {|s| s[:wday] == y}
-	message = "本日のボスのスケジュールは"
-	today_schedule.each do |today|
-		message = message + "\n"+"#{today[:time]} : #{today[:name1]} #{today[:name2]}"
 
-	end
-	message = message + "\nです。"
-	event.send_message(message)
-end
+					if $voice_state then
+						event.voice.play_file("#{Dir.pwd}/voice/次のボスは.wav")
+						event.voice.play_file("#{Dir.pwd}/voice/#{next_boss[:name1]}.wav")
+						if next_boss[:name2] then
+							event.voice.play_file("#{Dir.pwd}/voice/#{next_boss[:name2]}.wav")
+						end
+						event.voice.play_file("#{Dir.pwd}/voice/です.wav")
+					end
 
+=end
+
+private
 def next_boss_data(hour,min)
 	min = one2two(min)
 	y = Date.today.wday

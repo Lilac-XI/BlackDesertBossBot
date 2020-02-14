@@ -4,5 +4,4 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '2.5.3'
 
 gem  "discordrb"
-gem "opus-ruby"
 gem "dotenv"
