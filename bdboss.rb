@@ -7,8 +7,8 @@ require 'dotenv'
 Dotenv.load
 
 bot = Discordrb::Commands::CommandBot.new(
-token: ENV["TOKEN"],
-client_id: ENV["CLIENT_ID"],
+token: ENV['TOKEN'],
+client_id: ENV['CLIENT_ID'],
 prefix:'b ',
 )
 
