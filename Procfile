@@ -1,1 +1,1 @@
-bot: ruby bdboss.rb
+bot: bundle exec ruby bdboss.rb
